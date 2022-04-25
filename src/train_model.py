@@ -40,6 +40,7 @@ class train_lstm(Preprocess):
         return self.model
 
     def build_model(self):
+
         model = keras.Sequential()
         model.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=self.input_shape)))
         model.add(tf.keras.layers.LSTM(units=self.config.process.n_units, activation=self.config.process.activation, dropout=self.config.process.dropout))
@@ -50,6 +51,7 @@ class train_lstm(Preprocess):
         return self.model
 
     def checkpoint(self):
+
         checkpoint_filepath = self.config.final_path
         model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=checkpoint_filepath,
@@ -62,8 +64,8 @@ class train_lstm(Preprocess):
 
     def train_model(self):
 
-        self.model = self.model.fit(self.X, self.y, epochs=self.config.epochs, batch_size=self.process.batch_size,
-                                    validation_split=self.config.process.validation_split, callbacks=[self.model_checkpoint_callback()])
+        self.trained_model = self.model.fit(self.X, self.y, epochs=self.config.epochs, batch_size=self.process.batch_size,
+                                            validation_split=self.config.process.validation_split, callbacks=[self.model_checkpoint_callback()])
 
         return self.trained_model
 
