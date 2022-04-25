@@ -1,9 +1,9 @@
+from datetime import datetime
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from datetime import datetime
-from tensorflow import keras
 from keras import layers
+from tensorflow import keras
 
 
 class lstm:
@@ -14,8 +14,6 @@ class lstm:
         self.n_of_layers = n_of_layers
         self.learning_rate = learning_rate
         self.dropout = dropout
-        self.date_index = date_index
-        self.target_index = target_index
         self.is_multivariate = is_multivariate
         self.input_shape = input_shape
 
