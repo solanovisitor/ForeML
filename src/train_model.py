@@ -5,7 +5,7 @@ Author: Khuyen Tran
 """
 
 from hydra.utils import to_absolute_path as abspath
-import process
+from process import process_data
 from process import Preprocess
 import tensorflow as tf
 from keras import layers
@@ -99,7 +99,7 @@ class ModelTrainer(Preprocess):
 
 if __name__ == '__main__':
     # Load the config file
-    config = process.main()
+    config = process_data()
     model = ModelTrainer(config)
     model = model.hyper_tuning()
     model.train_model()
