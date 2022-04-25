@@ -4,26 +4,19 @@ This is the demo code that uses hy                                              
 Author: Khuyen Tran
 """
 
-import hydra
 from hydra.utils import to_absolute_path as abspath
-from omegaconf import DictConfig
-from datetime import datetime
-import numpy as np
-import pandas as pd
-import process
 from process import Preprocess
 import tensorflow as tf
 from keras import layers
 from tensorflow import keras
 
 
-class train_lstm(Preprocess):
+class ModelTrainer(Preprocess):
 
-    def __init__(self, config, X, y):
+    def __init__(self, config):
         super().__init__(config)
 
-        self.X = X
-        self.y = y
+        self.X, self.y = super().yield_data()
 
     def build_tunable_model(self, hp):
 
@@ -33,7 +26,7 @@ class train_lstm(Preprocess):
         lr = hp.Choice('Learning Rate', values=[1e-2, 1e-3])
         model.add(tf.keras.layers.Bidirectional(layers.LSTM(units=hp_units, return_sequences=True, input_shape=self.input_shape)))
         model.add(tf.keras.layers.LSTM(units=hp_units, activation='relu', dropout=dropou))
-        model.add(tf.keras.layers.Dense(self.config.n_steps_out))
+        model.add(tf.keras.layers.Dense(self.config.process.n_steps_out))
         model.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=lr))
         self.model = model
 
@@ -44,7 +37,7 @@ class train_lstm(Preprocess):
         model = keras.Sequential()
         model.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=self.input_shape)))
         model.add(tf.keras.layers.LSTM(units=self.config.process.n_units, activation=self.config.process.activation, dropout=self.config.process.dropout))
-        model.add(tf.keras.layers.Dense(self.config.processn_steps_out))
+        model.add(tf.keras.layers.Dense(self.config.process.n_steps_out))
         model.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=0.001))
         self.model = model
 
@@ -63,9 +56,16 @@ class train_lstm(Preprocess):
         return model_checkpoint_callback
 
     def train_model(self):
+        """Function to train the model"""
+        input_path = abspath(self.config.processed.path)
+        output_path = abspath(self.config.final.path)
+        model_type = self.config.model.type
+        print(f"Train modeling using {input_path}")
+        print(f"Model used: {model_type}")
+        print(f"Save the output to {output_path}")
 
-        self.trained_model = self.model.fit(self.X, self.y, epochs=self.config.epochs, batch_size=self.process.batch_size,
-                                            validation_split=self.config.process.validation_split, callbacks=[self.model_checkpoint_callback()])
+        self.trained_model = self.model.fit(self.X, self.y, epochs=self.config.epochs, batch_size=self.config.model.batch_size,
+                                            validation_split=self.config.model.validation_split, callbacks=[self.checkpoint()])
 
         return self.trained_model
 
@@ -77,13 +77,13 @@ class train_lstm(Preprocess):
         if self.config.hypertune:
             tuner = keras.tuner.RandomSearch(self.build_tunable_model(),
                                              objective='val_loss',
-                                             max_trials=10,
+                                             max_trials=self.config.model.epochs,
                                              executions_per_trial=1,
                                              directory='/tmp/lstm_tuner',
                                              project_name='lstm_tuner',
                                              overwrite=True,
                                              seed=42)
-            tuner.search(self.X, self.Y, epochs=self.config.process.epochs, batch_size=self.config.process.batch_size)
+            tuner.search(self.X, self.Y, epochs=self.config.model.epochs, batch_size=self.config.model.batch_size)
             tuner.results_summary()
             best_model = tuner.get_best_models(num_models=1)[0]
             best_model.summary()
@@ -96,24 +96,7 @@ class train_lstm(Preprocess):
             return self.model
 
 
-@hydra.main(config_path="../config", config_name="main")
-def train_model(config: DictConfig):
-    """Function to train the model"""
-
-    input_path = abspath(config.processed.path)
-    output_path = abspath(config.final.path)
-    model_type = config.model.type
-    print(f"Train modeling using {input_path}")
-    print(f"Model used: {model_type}")
-    print(f"Save the output to {output_path}")
-
-    X, y = process.main()
-
-    if config.model.type == 'lstm':
-        model = train_lstm(config, X, y)
-    model.hyper_tuning()
-    model.train_model()
-
-
 if __name__ == "__main__":
-    train_model()
+    model = ModelTrainer()
+    model = model.hyper_tuning()
+    model.train_model()

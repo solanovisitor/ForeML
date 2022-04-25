@@ -1,2 +1,8 @@
 name: model1
 type: lstm
+n_units: 100
+activation: relu
+dropout: 0.7
+epochs: 10
+batch_size: 500
+validation_split: 0.2
