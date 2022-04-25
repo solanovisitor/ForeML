@@ -4,7 +4,7 @@ defaults:
   - _self_
 
 raw: 
-  path: data/raw/sample.csv
+  path: /home/solano_todeschini/ForeML/data/raw/sample.csv
 
 processed:
   dir: data/processed
