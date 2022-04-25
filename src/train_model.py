@@ -3,7 +3,7 @@ This is the demo code that uses hy                                              
 
 Author: Khuyen Tran
 """
-import hydra
+
 from hydra.utils import to_absolute_path as abspath
 from omegaconf import DictConfig
 from process import Preprocess
@@ -12,12 +12,12 @@ from keras import layers
 from tensorflow import keras
 
 
-class ModelTrainer():
+class ModelTrainer(Preprocess):
 
     def __init__(self, config):
+        super().__init__(config)
 
-        final_data = Preprocess(config)
-        self.X, self.y = final_data.yield_data()
+        self.X, self.y = super().yield_data()
 
     def build_tunable_model(self, hp):
 
@@ -56,7 +56,7 @@ class ModelTrainer():
 
         return model_checkpoint_callback
 
-    def train(self):
+    def train_model(self):
         """Function to train the model"""
         input_path = abspath(self.config.processed.path)
         output_path = abspath(self.config.final.path)
@@ -97,17 +97,7 @@ class ModelTrainer():
             return self.model
 
 
-@hydra.main(config_path="../config", config_name='main')
-def train_model(config: DictConfig):
-    """Function to process the data"""
-
-    # instantiate the class
-    print(f"Process data using {config.raw.path}")
-    print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
-
-    model = ModelTrainer(config)
-    model = model.hyper_tuning()
-
-
 if __name__ == '__main__':
-    train_model()
+    model = ModelTrainer()
+    model = model.hyper_tuning()
+    model.train_model()

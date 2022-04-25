@@ -5,15 +5,15 @@
 """
 
 import hydra
-from hydra.utils import to_absolute_path as abspath
+from omegaconf import DictConfig
 import pandas as pd
 from numpy import array
-from train_model import ModelTrainer
 
 
-class Preprocess(ModelTrainer):
+class Preprocess:
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.data = self.input_data()
 
     def read_data(self):
@@ -74,3 +74,19 @@ class Preprocess(ModelTrainer):
         self.X = self.X.reshape((self.X.shape[0], self.X.shape[1], n_features))
 
         return self.X, self.y
+
+
+@hydra.main(config_path="../config", config_name='main')
+def process_data(config: DictConfig):
+    """Function to process the data"""
+
+    # instantiate the class
+    print(f"Process data using {config.raw.path}")
+    print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
+    X, y = Preprocess(config)
+
+    return X, y
+
+
+if __name__ == '__main__':
+    process_data()
