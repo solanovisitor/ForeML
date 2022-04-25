@@ -58,11 +58,9 @@ class Preprocess:
 
     def input_output_split(self):
         # define input sequence
-        raw_seq = self.data['y']
-        # choose a number of time steps
-        n_steps_in, n_steps_out = self.config.process.n_steps_in, self.config.process.n_steps_out,
+        self.sequence = self.data['y']
         # split into samples
-        self.X, self.y = self.split_sequence(raw_seq, n_steps_in, n_steps_out)
+        self.X, self.y = self.split_sequence()
         # summarize the data
         for i in range(len(self.X)):
             print(self.X[i], self.y[i])
