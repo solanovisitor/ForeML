@@ -5,7 +5,7 @@ Author: Khuyen Tran
 """
 
 from hydra.utils import to_absolute_path as abspath
-from omegaconf import DictConfig
+import process
 from process import Preprocess
 import tensorflow as tf
 from keras import layers
@@ -98,6 +98,8 @@ class ModelTrainer(Preprocess):
 
 
 if __name__ == '__main__':
-    model = ModelTrainer()
+    # Load the config file
+    config = process.main()
+    model = ModelTrainer(config)
     model = model.hyper_tuning()
     model.train_model()

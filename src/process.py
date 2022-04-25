@@ -83,9 +83,9 @@ def process_data(config: DictConfig):
     # instantiate the class
     print(f"Process data using {config.raw.path}")
     print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
-    X, y = Preprocess(config)
+    # X, y = Preprocess(config)
 
-    return X, y
+    return config
 
 
 if __name__ == '__main__':
