@@ -76,16 +76,15 @@ class Preprocess:
         return self.X, self.y
 
 
-@hydra.main(config_path="config", config_name='main')
+@hydra.main(config_path="../config", config_name='main')
 def process_data(config: DictConfig):
     """Function to process the data"""
 
     # instantiate the class
     print(f"Process data using {config.raw.path}")
     print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
-    # X, y = Preprocess(config)
-
-    return config
+    final_data = Preprocess(config)
+    final_data.yield_data()
 
 
 if __name__ == '__main__':
