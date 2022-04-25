@@ -18,7 +18,7 @@ class Preprocess:
 
     def read_data(self):
         # read data in .csv formt
-        self.data = pd.read_csv(self.config.raw_path, delimiter=self.config.process.delimiter, header=None)
+        self.data = pd.read_csv(self.config.raw.path, delimiter=self.config.process.delimiter, skiprows=1)
 
         return self.data
 
