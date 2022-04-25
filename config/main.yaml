@@ -15,3 +15,5 @@ final:
   dir: data/final
   name: final.csv
   path: ${final.dir}/${final.name}
+
+hypertune: True

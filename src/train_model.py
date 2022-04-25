@@ -10,7 +10,8 @@ from omegaconf import DictConfig
 from datetime import datetime
 import numpy as np
 import pandas as pd
-from process import *
+import process
+from process import Preprocess
 import tensorflow as tf
 from keras import layers
 from tensorflow import keras
@@ -18,14 +19,11 @@ from tensorflow import keras
 
 class train_lstm(Preprocess):
 
-    def __init__(self, config):
+    def __init__(self, config, X, y):
         super().__init__(config)
-        self.input_shape = (self.config.n_steps_in, 1)
-        self.n_steps_out = self.config.n_steps_out
-        self.hypertune = self.config.hypertune
-        self.epochs = self.config.epochs
-        self.batch_size = self.config.batch_size
-        self.X, self.y = super().final_data()
+
+        self.X = X
+        self.y = y
 
     def build_tunable_model(self, hp):
 
@@ -44,8 +42,8 @@ class train_lstm(Preprocess):
     def build_model(self):
         model = keras.Sequential()
         model.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=self.input_shape)))
-        model.add(tf.keras.layers.LSTM(units=100, activation='relu', dropout=0.5))
-        model.add(tf.keras.layers.Dense(self.n_steps_out))
+        model.add(tf.keras.layers.LSTM(units=self.config.process.n_units, activation=self.config.process.activation, dropout=self.config.process.dropout))
+        model.add(tf.keras.layers.Dense(self.config.processn_steps_out))
         model.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=0.001))
         self.model = model
 
@@ -54,34 +52,28 @@ class train_lstm(Preprocess):
     def checkpoint(self):
         checkpoint_filepath = self.config.final_path
         model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-                                                                        filepath=checkpoint_filepath,
-                                                                        save_weights_only=False,
-                                                                        monitor='val_loss',
-                                                                        mode='max',
-                                                                        save_best_only=True)
+            filepath=checkpoint_filepath,
+            save_weights_only=False,
+            monitor='val_loss',
+            mode='max',
+            save_best_only=True)
 
         return model_checkpoint_callback
 
-    def train_model(self, train_data, test_data, epochs, batch_size):
+    def train_model(self):
 
         self.model = self.model.fit(self.X, self.y, epochs=self.config.epochs, batch_size=self.process.batch_size,
                                     validation_split=self.config.process.validation_split, callbacks=[self.model_checkpoint_callback()])
 
-        return self.model
+        return self.trained_model
 
-    def predict_model(self, model, test_data):
-        return model.predict(test_data)
-
-    def save_model(self, model, model_name):
-        model.save(model_name)
-
-    def load_model(self, model_name):
-        model = keras.models.load_model(model_name)
+    def load_model(self):
+        model = keras.models.load_model(self.config.model.name)
         return model
 
-    def hyper_tuning(self, train_data, test_data, epochs, batch_size):
-        if self.hypertune:
-            tuner = keras.tuner.RandomSearch(self.build_tunable_model,
+    def hyper_tuning(self):
+        if self.config.hypertune:
+            tuner = keras.tuner.RandomSearch(self.build_tunable_model(),
                                              objective='val_loss',
                                              max_trials=10,
                                              executions_per_trial=1,
@@ -89,32 +81,17 @@ class train_lstm(Preprocess):
                                              project_name='lstm_tuner',
                                              overwrite=True,
                                              seed=42)
-            tuner.search(train_data, test_data, epochs=epochs, batch_size=batch_size)
+            tuner.search(self.X, self.Y, epochs=self.config.process.epochs, batch_size=self.config.process.batch_size)
             tuner.results_summary()
             best_model = tuner.get_best_models(num_models=1)[0]
             best_model.summary()
-            return best_model
+            self.model = best_model
+
+            return self.model
         else:
-            return self.build_model(None)
+            self.model = self.build_model()
 
-    def run(self, train_data, test_data, epochs, batch_size):
-        model = self.load_model('models/lstm_model.h5')
-        if self.hypertune:
-            model = self.hyper_tuning(train_data, test_data, epochs, batch_size)
-        test_loss = self.train_model(model, train_data, test_data, epochs, batch_size)
-        print(test_loss)
-        self.save_model(model, 'models/lstm_model.h5')
-        return test_loss
-
-    def run_predict(self, test_data):
-        model = self.load_model(f'{self.config.model.name}.h5')
-        test_pred = self.predict_model(model, test_data)
-        return test_pred
-
-    def run_predict_multivariate(self, test_data):
-        model = self.load_model('models/lstm_model.h5')
-        test_pred = self.predict_model(model, test_data)
-        return test_pred
+            return self.model
 
 
 @hydra.main(config_path="../config", config_name="main")
@@ -123,11 +100,17 @@ def train_model(config: DictConfig):
 
     input_path = abspath(config.processed.path)
     output_path = abspath(config.final.path)
+    model_type = config.model.type
+    print(f"Train modeling using {input_path}")
+    print(f"Model used: {model_type}")
+    print(f"Save the output to {output_path}")
+
     X, y = process.main()
 
-    print(f"Train modeling using {input_path}")
-    print(f"Model used: {config.model.name}")
-    print(f"Save the output to {output_path}")
+    if config.model.type == 'lstm':
+        model = train_lstm(config, X, y)
+    model.hyper_tuning()
+    model.train_model()
 
 
 if __name__ == "__main__":
