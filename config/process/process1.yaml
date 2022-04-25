@@ -1,5 +1,5 @@
 delimiter: ','
 target_index: 4
-date_index: 0
+date_index: 2
 n_steps_in: 12
 n_steps_out: 8
