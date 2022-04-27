@@ -37,7 +37,7 @@ class ModelTrainer(Preprocess):
         lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=(self.config.process.n_steps_in, self.config.process.n_features))))
         lstm.add(tf.keras.layers.LSTM(units=self.config.model.n_units, activation=self.config.model.activation, dropout=self.config.model.dropout))
         lstm.add(tf.keras.layers.Dense(self.config.process.n_steps_out))
-        lstm.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=0.001))
+        lstm.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=self.config.model.learning_rate))
         self.model = lstm
 
         return self.model
@@ -57,7 +57,7 @@ class ModelTrainer(Preprocess):
     def train_model(self):
         """Function to train the model"""
         input_path = abspath(self.config.processed.path)
-        output_path = abspath(self.config.final.path)
+        output_path = abspath(self.config.final.path_x)
         model_type = self.config.model.type
         print(f"Train modeling using {input_path}")
         print(f"Model used: {model_type}")
