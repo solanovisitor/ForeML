@@ -4,6 +4,8 @@ This is the demo code that uses hy                                              
 Author: Khuyen Tran
 """
 
+import hydra
+from omegaconf import DictConfig
 from hydra.utils import to_absolute_path as abspath
 from process import process_data
 from process import Preprocess
@@ -12,11 +14,11 @@ from keras import layers
 from tensorflow import keras
 
 
-class ModelTrainer(Preprocess):
+class ModelTrainer:
 
     def __init__(self, config):
-        super().__init__(config)
 
+        self.config = config
         self.X, self.y = super().yield_data()
 
     def build_tunable_model(self, hp):
@@ -97,9 +99,19 @@ class ModelTrainer(Preprocess):
             return self.model
 
 
+@hydra.main(config_path="../config", config_name='main')
+def train(config: DictConfig):
+    """Function to process the data"""
+
+    # instantiate the class
+    print(f"Process data using {config.raw.path}")
+    print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
+    trainer = ModelTrainer(config)
+    trainer.hyper_tuning()
+    trainer.train_model()
+
+    return trainer.trained_model
+
+
 if __name__ == '__main__':
-    # Load the config file
-    config = process_data()
-    model = ModelTrainer(config)
-    model = model.hyper_tuning()
-    model.train_model()
+    train()
