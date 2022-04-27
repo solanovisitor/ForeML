@@ -1,7 +1,7 @@
 import hydra
-from omegaconf import DictConfig
 import pandas as pd
 from numpy import array
+from omegaconf import DictConfig
 
 
 class Preprocess:
