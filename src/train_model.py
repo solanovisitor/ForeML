@@ -44,7 +44,7 @@ class ModelTrainer(Preprocess):
 
     def checkpoint(self):
 
-        checkpoint_filepath = self.config.final_path
+        checkpoint_filepath = self.config.model.path
         model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=checkpoint_filepath,
             save_weights_only=False,
@@ -63,7 +63,7 @@ class ModelTrainer(Preprocess):
         print(f"Model used: {model_type}")
         print(f"Save the output to {output_path}")
 
-        self.trained_model = self.model.fit(self.X, self.y, epochs=self.config.epochs, batch_size=self.config.model.batch_size,
+        self.trained_model = self.model.fit(self.X, self.y, epochs=self.config.model.epochs, batch_size=self.config.model.batch_size,
                                             validation_split=self.config.model.validation_split, callbacks=[self.checkpoint()])
 
         return self.trained_model
