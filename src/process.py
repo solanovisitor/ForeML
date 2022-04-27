@@ -11,6 +11,9 @@ class Preprocess:
         self.data = self.input_data()
         self.X, self.y = self.yield_data()
 
+        print(self.X.shape)
+        print(self.y.shape)
+
     def read_data(self):
         # read data in .csv formt
         self.data = pd.read_csv(self.config.raw.path, delimiter=self.config.process.delimiter, skiprows=1)
@@ -60,6 +63,8 @@ class Preprocess:
         for i in range(len(self.X)):
             print(self.X[i], self.y[i])
 
+        return self.X, self.y
+
     def yield_data(self):
         # reshape from [samples, timesteps] into [samples, timesteps, features]
         self.X, self.y = self.input_output_split()
@@ -67,6 +72,17 @@ class Preprocess:
         self.X = self.X.reshape((self.X.shape[0], self.X.shape[1], n_features))
 
         return self.X, self.y
+
+    def save_processed_data(self):
+        # save processed data
+        self.data.to_csv(self.config.processed.path, index=False)
+
+    def save_final_data(self):
+        # save final data
+        X_data = pd.DataFrame(self.X.reshape(self.X.shape[0], self.X.shape[1]))
+        y_data = pd.DataFrame(self.y)
+        X_data.to_csv(f'{self.config.final.path_x}', index=False)
+        y_data.to_csv(self.config.final.path_y, index=False)
 
 
 @hydra.main(config_path="../config", config_name='main')
@@ -76,8 +92,12 @@ def process_data(config: DictConfig):
     # instantiate the class
     print(f"Process data using {config.raw.path}")
     print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
-    final_data = Preprocess(config)
-    final_data.yield_data()
+    processor = Preprocess(config)
+    print("Created processor...")
+    processor.save_processed_data()
+    print(f"Processed data saved on {config.processed.path}")
+    processor.save_final_data()
+    print(f"X and y saved on {config.final.path_x} and {config.final.path_y}")
 
 
 if __name__ == '__main__':
