@@ -80,11 +80,6 @@ class ModelTrainer(Preprocess, LstmModel):
 
             return self.model
 
-    def load_model(self):
-        """Function to load the model"""
-        model = keras.models.load_model(self.config.model.name)
-        return model
-
 
 @hydra.main(config_path="../config", config_name='main')
 def train(config: DictConfig):

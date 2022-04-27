@@ -1,5 +1,6 @@
 import hydra
 import pandas as pd
+from tensorflow import keras
 from numpy import array
 from omegaconf import DictConfig
 from process import Preprocess
@@ -16,14 +17,15 @@ class Forecaster(Preprocess):
         self.X = None
         self.y = None
 
-
     def read_data(self):
+        """Function to read the data"""
         # read data in .csv formt
-        self.data = pd.read_csv(self.config.raw.path, delimiter=self.config.process.delimiter, skiprows=1)
+        self.data = pd.read_csv(self.config.test.path, delimiter=self.config.process.delimiter, skiprows=1)
 
         return self.data
 
     def input_data(self):
+        """Function to load the data"""
         # process data into readeble format
         df = self.read_data()
         df['y'] = df.iloc[:, self.config.process.target_index]
@@ -40,7 +42,7 @@ class Forecaster(Preprocess):
         return self.data
 
     def split_sequence(self):
-
+        """Function to split the sequence"""
         X, y = list(), list()
         for i in range(len(self.sequence)):
             # find the end of this pattern
@@ -58,6 +60,7 @@ class Forecaster(Preprocess):
         return self.X, self.y
 
     def input_output_split(self):
+        """Function to split the input and output"""
         # define input sequence
         self.sequence = self.data['y']
         # split into samples
@@ -69,6 +72,7 @@ class Forecaster(Preprocess):
         return self.X, self.y
 
     def yield_data(self):
+        """Function to yield the final data"""
         # reshape from [samples, timesteps] into [samples, timesteps, features]
         self.X, self.y = self.input_output_split()
         n_features = 1
@@ -76,31 +80,63 @@ class Forecaster(Preprocess):
 
         return self.X, self.y
 
-    def save_processed_data(self):
-        # save processed data
-        self.data.to_csv(self.config.processed.path, index=False)
+    def load_model(self):
+        """Function to load the model"""
+        model = keras.models.load_model(self.config.mlmodel.path)
+        return model
 
-    def save_final_data(self):
-        # save final data
-        X_data = pd.DataFrame(self.X.reshape(self.X.shape[0], self.X.shape[1]))
-        y_data = pd.DataFrame(self.y)
-        X_data.to_csv(f'{self.config.final.path_x}', index=False)
-        y_data.to_csv(self.config.final.path_y, index=False)
+    def predict(self):
+        """Function to predict the data"""
+        # load model
+        model = self.load_model()
+        # make predictions
+        yhat = model.predict(self.X, verbose=0)
+        # summarize the first 5 cases
+        for i in range(len(self.X)):
+            print(self.X[i], self.y[i], yhat[i])
+
+        return yhat
+
+    def save_prediction(self):
+        """Function to save the prediction"""
+        # save the prediction
+        self.prediction = self.predict()
+        # save the prediction
+        self.prediction.to_csv(self.config.results.path, index=False)
+
+        return self.prediction
+
+    def save_true_values(self):
+        """Function to save the true values"""
+        # save the true values
+        self.true_values = self.y
+        # save the true values
+        self.true_values.to_csv(self.config.truevalues.path, index=False)
+
+        return self.true_values
+
+    def plot_prediction(self):
+        """Function to plot the prediction"""
+        for n in range(7):
+            true_values = self.true_values.iloc[:, n]
+            pred_values = self.prediction.iloc[:, n]
+            df = pd.concat((true_values, pred_values), axis=1, keys=['true', 'pred'])
+            df.plot(figsize=(16, 12))
 
 
 @hydra.main(config_path="../config", config_name='main')
 def forecast(config: DictConfig):
-    """Function to process the data"""
-
-    # instantiate the class
-    print(f"Process data using {config.raw.path}")
-    print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
+    """Function to run the forecast"""
+    # create the object
     forecaster = Forecaster(config)
-    print("Created ...")
+    print("Forecaster Created ...")
+    # process the data
+    forecaster.input_data()
+    forecaster.yield_data()
+    forecaster.save_prediction()
+    forecaster.save_true_values()
+    forecaster.plot_prediction()
     forecaster.save_processed_data()
-    print(f"Processed data saved on {config.processed.path}")
-    forecaster.save_final_data()
-    print(f"X and y saved on {config.final.path_x} and {config.final.path_y}")
 
 
 if __name__ == '__main__':
