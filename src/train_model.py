@@ -78,7 +78,7 @@ class ModelTrainer(Preprocess):
 
     def hyper_tuning(self):
         if self.config.hypertune:
-            tuner = kt.RandomSearch(self.build_tunable_model(),
+            tuner = kt.RandomSearch(self.build_tunable_model,
                                     objective='val_loss',
                                     max_trials=self.config.model.epochs,
                                     executions_per_trial=1,
