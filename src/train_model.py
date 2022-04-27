@@ -35,7 +35,7 @@ class ModelTrainer(Preprocess):
     def build_model(self):
 
         lstm = keras.Sequential()
-        lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=self.shape)))
+        lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=(self.config.process.n_steps_in, self.config.process.n_features))))
         lstm.add(tf.keras.layers.LSTM(units=self.config.process.n_units, activation=self.config.process.activation, dropout=self.config.process.dropout))
         lstm.add(tf.keras.layers.Dense(self.config.process.n_steps_out))
         lstm.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=0.001))
