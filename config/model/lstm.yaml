@@ -1,4 +1,4 @@
-name: model1
+name: lstm
 n_units: 100
 activation: relu
 dropout: 0.7

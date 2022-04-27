@@ -1,6 +1,6 @@
 defaults:
-  - process: process1
-  - model: model1
+  - process: lstm
+  - model: lstm
   - _self_
 
 raw: 
@@ -20,7 +20,6 @@ final:
 
 model:
   version: 1.0
-  type: lstm
   dir: /home/solano_todeschini/ForeML/models/
   name: ${model.type}_model_v${model.version}.h5
   path: ${model.dir}/${model.name}
