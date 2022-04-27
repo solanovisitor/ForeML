@@ -4,11 +4,18 @@ from hydra.utils import to_absolute_path as abspath
 from keras import layers
 from omegaconf import DictConfig
 from tensorflow import keras
+from process import Preprocess
 
 
-class ModelTrainer:
+class ModelTrainer(Preprocess):
 
-    def __init__(self, config):
+    def __innit__(self, config: DictConfig):
+        super().__init__(config)
+        self.config = config
+        self.model = None
+        self.trained_model = None
+        self.X = None
+        self.Y = None
 
         self.config = config
         self.X, self.y = super().yield_data()
