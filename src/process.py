@@ -9,6 +9,7 @@ class Preprocess:
     def __init__(self, config):
         self.config = config
         self.data = self.input_data()
+        self.X, self.y = self.yield_data()
 
     def read_data(self):
         # read data in .csv formt
