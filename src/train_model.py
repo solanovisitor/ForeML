@@ -12,12 +12,14 @@ class ModelTrainer(Preprocess):
 
     def __innit__(self, config: DictConfig):
         super().__init__(config)
+
         self.config = config
         self.model = None
         self.trained_model = None
         self.config = config
         self.X, self.y = super().yield_data()
         self.input_shape = (self.config.process.n_steps_in, self.config.process.n_features)
+        print(self.input_shape)
 
     def build_tunable_model(self, hp):
 
