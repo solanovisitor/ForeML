@@ -5,46 +5,35 @@ from keras import layers
 from omegaconf import DictConfig
 import keras_tuner as kt
 from tensorflow import keras
-from process import Preprocess
+from process import Preprocess, LstmModel
 
 
-class ModelTrainer(Preprocess):
-
-    def __innit__(self, config: DictConfig):
+class ModelTrainer(Preprocess, LstmModel):
+    # Initialize the class
+    def __init__(self, config: DictConfig):
+        # Call the super class constructor
         super().__init__(config)
+        self.model = self.get_model()
+        self.trained_model = self.train_model()
+        self.model = self.hyper_tuning()
 
         self.config = config
         self.model = None
         self.trained_model = None
 
-    def build_tunable_model(self, hp):
+    def get_model(self):
+        """Function to build the model"""
+        if self.config.model.type == 'lstm':
+            if self.config.hypertune:
+                model = self.build_tunable_lstm()
+            else:
+                model = self.build_lstm()
 
-        lstm = keras.Sequential()
-        hp_units = hp.Int('Units Layer 1', min_value=100, max_value=300, step=50)
-        dropou = hp.Float('Dropout_rate', min_value=0.5, max_value=0.8, step=0.1)
-        lr = hp.Choice('Learning Rate', values=[1e-2, 1e-3])
-        lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=hp_units, return_sequences=True, input_shape=(self.config.process.n_steps_in, self.config.process.n_features))))
-        lstm.add(tf.keras.layers.LSTM(units=hp_units, activation='relu', dropout=dropou))
-        lstm.add(tf.keras.layers.Dense(self.config.process.n_steps_out))
-        lstm.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=lr))
-        self.model = lstm
-
-        return self.model
-
-    def build_model(self):
-
-        lstm = keras.Sequential()
-        lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=(self.config.process.n_steps_in, self.config.process.n_features))))
-        lstm.add(tf.keras.layers.LSTM(units=self.config.model.n_units, activation=self.config.model.activation, dropout=self.config.model.dropout))
-        lstm.add(tf.keras.layers.Dense(self.config.process.n_steps_out))
-        lstm.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=self.config.model.learning_rate))
-        self.model = lstm
-
-        return self.model
+        return model
 
     def checkpoint(self):
-
-        checkpoint_filepath = self.config.model.path
+        """Function to save the model"""
+        checkpoint_filepath = self.config.mlmodel.path
         model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
             filepath=checkpoint_filepath,
             save_weights_only=False,
@@ -68,13 +57,10 @@ class ModelTrainer(Preprocess):
 
         return self.trained_model
 
-    def load_model(self):
-        model = keras.models.load_model(self.config.model.name)
-        return model
-
     def hyper_tuning(self):
+        """Function to hyper-tuning the model"""
         if self.config.hypertune:
-            tuner = kt.RandomSearch(self.build_tunable_model,
+            tuner = kt.RandomSearch(self.get_model(),
                                     objective='val_loss',
                                     max_trials=self.config.model.epochs,
                                     executions_per_trial=1,
@@ -90,16 +76,20 @@ class ModelTrainer(Preprocess):
 
             return self.model
         else:
-            self.model = self.build_model()
+            self.model = self.get_model()
 
             return self.model
+
+    def load_model(self):
+        """Function to load the model"""
+        model = keras.models.load_model(self.config.model.name)
+        return model
 
 
 @hydra.main(config_path="../config", config_name='main')
 def train(config: DictConfig):
-    """Function to process the data"""
+    """Script to process the data"""
 
-    # instantiate the class
     print(f"Process data using {config.raw.path}")
     print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
     trainer = ModelTrainer(config)
