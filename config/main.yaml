@@ -7,13 +7,22 @@ raw:
   path: /home/solano_todeschini/ForeML/data/raw/test_data.csv
 
 processed:
-  dir: data/processed
+  dir: /home/solano_todeschini/ForeML/data/processed
   name: processed.csv
   path: ${processed.dir}/${processed.name}
 
 final:
-  dir: data/final
-  name: final.csv
-  path: ${final.dir}/${final.name}
+  dir: /home/solano_todeschini/ForeML/data/final
+  name_x: final_x.csv
+  name_y: final_y.csv
+  path_x: ${final.dir}/${final.name_x}
+  path_y: ${final.dir}/${final.name_y}
+
+model:
+  version: 1.0
+  type: lstm
+  dir: /home/solano_todeschini/ForeML/models/
+  name: ${model.type}_model_v${model.version}.h5
+  path: ${model.dir}/${model.name}
 
 hypertune: False
