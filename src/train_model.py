@@ -16,9 +16,8 @@ class ModelTrainer(Preprocess):
         self.config = config
         self.model = None
         self.trained_model = None
-        self.config = config
-        self.X, self.y = super().yield_data()
         self.input_shape = (self.config.process.n_steps_in, self.config.process.n_features)
+        self.X, self.y = super().yield_data()
 
     def build_tunable_model(self, hp):
 
