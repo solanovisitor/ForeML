@@ -77,14 +77,14 @@ class ModelTrainer(Preprocess):
 
     def hyper_tuning(self):
         if self.config.hypertune:
-            tuner = keras.tuner.RandomSearch(self.build_tunable_model(),
-                                             objective='val_loss',
-                                             max_trials=self.config.model.epochs,
-                                             executions_per_trial=1,
-                                             directory='/tmp/lstm_tuner',
-                                             project_name='lstm_tuner',
-                                             overwrite=True,
-                                             seed=42)
+            tuner = tf.keras.tuner.RandomSearch(self.build_tunable_model(),
+                                                objective='val_loss',
+                                                max_trials=self.config.model.epochs,
+                                                executions_per_trial=1,
+                                                directory='/tmp/lstm_tuner',
+                                                project_name='lstm_tuner',
+                                                overwrite=True,
+                                                seed=42)
             tuner.search(self.X, self.Y, epochs=self.config.model.epochs, batch_size=self.config.model.batch_size)
             tuner.results_summary()
             best_model = tuner.get_best_models(num_models=1)[0]
