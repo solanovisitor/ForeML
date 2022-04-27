@@ -25,7 +25,7 @@ class ModelTrainer(Preprocess):
         hp_units = hp.Int('Units Layer 1', min_value=100, max_value=300, step=50)
         dropou = hp.Float('Dropout_rate', min_value=0.5, max_value=0.8, step=0.1)
         lr = hp.Choice('Learning Rate', values=[1e-2, 1e-3])
-        lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=hp_units, return_sequences=True, input_shape=self.shape)))
+        lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=hp_units, return_sequences=True, input_shape=(self.config.process.n_steps_in, self.config.process.n_features))))
         lstm.add(tf.keras.layers.LSTM(units=hp_units, activation='relu', dropout=dropou))
         lstm.add(tf.keras.layers.Dense(self.config.process.n_steps_out))
         lstm.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=lr))
@@ -36,7 +36,7 @@ class ModelTrainer(Preprocess):
     def build_model(self):
 
         lstm = keras.Sequential()
-        lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=self.input_shape)))
+        lstm.add(tf.keras.layers.Bidirectional(layers.LSTM(units=100, return_sequences=True, input_shape=self.shape)))
         lstm.add(tf.keras.layers.LSTM(units=self.config.process.n_units, activation=self.config.process.activation, dropout=self.config.process.dropout))
         lstm.add(tf.keras.layers.Dense(self.config.process.n_steps_out))
         lstm.compile(loss='msle', optimizer=keras.optimizers.Adam(learning_rate=0.001))
