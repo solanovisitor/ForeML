@@ -105,7 +105,7 @@ def train(config: DictConfig):
     # instantiate the class
     print(f"Process data using {config.raw.path}")
     print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
-    trainer = ModelTrainer()
+    trainer = ModelTrainer(config)
     trainer.hyper_tuning()
     trainer.train_model()
 
