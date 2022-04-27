@@ -10,7 +10,7 @@ from process import Preprocess
 
 class ModelTrainer(Preprocess):
 
-    def __innit__(self, config: DictConfig):
+    def __innit__(self, config: DictConfig, input_shape: tuple):
         super().__init__(config)
 
         self.config = config
@@ -18,7 +18,7 @@ class ModelTrainer(Preprocess):
         self.trained_model = None
         self.config = config
         self.X, self.y = super().yield_data()
-        self.input_shape = (self.config.process.n_steps_in, self.config.process.n_features)
+        self.input_shape = input_shape
         print(self.input_shape)
 
     def build_tunable_model(self, hp):
@@ -106,7 +106,8 @@ def train(config: DictConfig):
     # instantiate the class
     print(f"Process data using {config.raw.path}")
     print(f"Parameters used: {config.process.n_steps_in} {config.process.n_steps_out} {config.process.target_index} {config.process.date_index} {config.process.delimiter}")
-    trainer = ModelTrainer(config)
+    input_shape = (config.process.n_steps_in, config.process.n_features)
+    trainer = ModelTrainer(config, input_shape)
     trainer.hyper_tuning()
     trainer.train_model()
 
