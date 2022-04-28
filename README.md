@@ -1,7 +1,7 @@
 # ForeML
 A package for training and evaluating time series forecasting using Tensorflow.
 
-## Set up the environment
+## :brain: Set up the environment
 1. Install [Poetry](https://python-poetry.org/docs/#installation)
 2. Set up the environment:
 ```bash
