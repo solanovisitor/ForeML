@@ -1,7 +1,10 @@
 defaults:
   - process: lstm
   - model: lstm
+  - forecast: lstm
   - _self_
+
+hypertune: False
 
 raw: 
   path: /home/solano_todeschini/ForeML/data/raw/test_data.csv
@@ -18,10 +21,26 @@ final:
   path_x: ${final.dir}/${final.name_x}
   path_y: ${final.dir}/${final.name_y}
 
-model:
+test:
+  dir: /home/solano_todeschini/ForeML/data/test
+  name: test_data.csv
+  path: ${test.dir}/${test.name}
+
+mlmodel:
   version: 1.0
   dir: /home/solano_todeschini/ForeML/models/
   name: ${model.type}_model_v${model.version}.h5
   path: ${model.dir}/${model.name}
 
-hypertune: False
+
+results:
+    dir: /home/solano_todeschini/ForeML/data/results
+    name: ${model.type}_v${model.version}_results.csv
+    csv_path: ${results.dir}/${results.name}
+    plots_path: ${results.dir}
+
+truevalues:
+    dir: /home/solano_todeschini/ForeML/data/results
+    name: ${model.type}_v${model.version}_truevalues.csv
+    csv_path: ${results.dir}/${results.name}
+    plots_path: ${results.dir}
