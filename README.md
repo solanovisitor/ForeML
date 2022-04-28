@@ -19,14 +19,14 @@ pip install tensorflow
 poetry add <package-name>
 ```
 
-## Basic usage
-1. You will find the configurations for your runs in the config folder.
+## :mage: Basic usage
+**1. :file_folder: You will find the configurations for your runs in the config folder.**
    Change the paths in the main.yaml file to your personal directories that contain your data. For example:
 ```bash
 raw:
   path: /home/user/ForeML/data/raw/test_data.csv
 ```
-2. Also, the main.yaml file points to the parameters regarding the data processing and model training:
+**2. :clipboard: The main.yaml file points to the parameters regarding the data processing and model training:**
 ```bash
 defaults:
   - process: lstm
@@ -36,9 +36,9 @@ defaults:
 
 hypertune: False
 ```
-If you change the hypertune parameter to True, it will run a tunable model with predefined parameters.
+> If you change the hypertune parameter to True, it will run a tunable model with predefined parameters.
 
-3. The process YAML file listed in the main.yaml should look like this:
+**3. :scissors: The process YAML file listed in the main.yaml should look like this:**
 ```bash
 delimiter: ','
 target_index: 5
@@ -51,7 +51,7 @@ n_features: 1
 - Finally, you can input the number of timesteps your model will be trained on (n_steps_in) and the timesteps it will forecast (n_steps_out).
 - If your model have more than one feature, you can specify it in the last parameter.
 
-4. The model YAML file listed in the main.yaml should look like this:
+**4. :pushpin: The model YAML file listed in the main.yaml should look like this:**
 ```bash
 name: lstm
 type: lstm
@@ -64,9 +64,9 @@ validation_split: 0.2
 learning_rate: 0.001
 lossfunction: msle
 ```
-You can change the parameters in this file as you desire. Please note some of those won't cause any effect if you choose to hypertune.
+> You can change the parameters in this file as you desire. Please note some of those won't cause any effect if you choose to hypertune.
 
-5. When you have all ready and set, you can just run the files you desire:
+**5. :running_man: When you have all ready and set, you can just run the files you desire:**
 ```bash
 python3 /src/process.py
 python3 /src/train_model.py
