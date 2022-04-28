@@ -5,7 +5,7 @@ from omegaconf import DictConfig
 
 
 class Preprocess:
-
+    """Class to preprocess the data"""
     def __init__(self, config):
         self.config = config
         self.data = self.input_data()

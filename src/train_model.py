@@ -9,6 +9,7 @@ from process import Preprocess, LstmModel
 
 
 class ModelTrainer(Preprocess, LstmModel):
+    """Class to train the model"""
     # Initialize the class
     def __init__(self, config: DictConfig):
         # Call the super class constructor

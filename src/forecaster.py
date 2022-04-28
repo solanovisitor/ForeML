@@ -7,7 +7,7 @@ from process import Preprocess
 
 
 class Forecaster(Preprocess):
-
+    """Class to forecast on the test data"""
     def __init__(self, config: DictConfig):
         super().__init__(config)
 
@@ -115,7 +115,7 @@ class Forecaster(Preprocess):
 
         return self.true_values
 
-    def plot_prediction(self):
+    def plot_predictions(self):
         """Function to plot the prediction"""
         for n in range(7):
             true_values = self.true_values.iloc[:, n]
@@ -135,8 +135,7 @@ def forecast(config: DictConfig):
     forecaster.yield_data()
     forecaster.save_prediction()
     forecaster.save_true_values()
-    forecaster.plot_prediction()
-    forecaster.save_processed_data()
+    forecaster.plot_predictions()
 
 
 if __name__ == '__main__':
