@@ -48,9 +48,9 @@ n_steps_in: 12
 n_steps_out: 8
 n_features: 1
 ```
-First, select the delimiter for your .csv file. After, you specify your target and datetime column indexes.
-Finally, you can input the number of timesteps your model will be trained on (n_steps_in) and the timesteps it will forecast (n_steps_out).
-If your model have more than one feature, you can specify it in the last parameter.
+- First, select the delimiter for your .csv file. After, you specify your target and datetime column indexes.
+- Finally, you can input the number of timesteps your model will be trained on (n_steps_in) and the timesteps it will forecast (n_steps_out).
+- If your model have more than one feature, you can specify it in the last parameter.
 
 4. The model YAML file listed in the main.yaml should look like this:
 ```bash
@@ -73,6 +73,6 @@ python3 /src/process.py
 python3 /src/train_model.py
 python3 /src/forecaster.py
 ```
-process.py will return the .csv with processed data in the right format and the X and y ready to serve as input to the model. \n
-train_model.py will train the model with your input data and return a trained model as selected (specified architecture and hypertuning option in the config files). \n
-forecaster.py will take your test data, generate predictions on the dataset and compare with actual values, returning a plot for each timestep.
+- process.py will return the .csv with processed data in the right format and the X and y ready to serve as input to the model.
+- train_model.py will train the model with your input data and return a trained model as selected (specified architecture and hypertuning option in the config files).
+- forecaster.py will take your test data, generate predictions on the dataset and compare with actual values, returning a plot for each timestep.
