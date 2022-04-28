@@ -6,7 +6,7 @@ defaults:
 
 hypertune: False
 
-raw: 
+raw:
   path: /home/solano_todeschini/ForeML/data/raw/test_data.csv
 
 processed:

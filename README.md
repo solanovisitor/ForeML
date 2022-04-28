@@ -1,47 +1,5 @@
-# lstm_package
-
-## Tools used in this project
-* [Poetry](https://towardsdatascience.com/how-to-effortlessly-publish-your-python-package-to-pypi-using-poetry-44b305362f9f): Dependency management - [article](https://towardsdatascience.com/how-to-effortlessly-publish-your-python-package-to-pypi-using-poetry-44b305362f9f)
-* [hydra](https://hydra.cc/): Manage configuration files - [article](https://towardsdatascience.com/introduction-to-hydra-cc-a-powerful-framework-to-configure-your-data-science-projects-ed65713a53c6)
-* [pre-commit plugins](https://pre-commit.com/): Automate code reviewing formatting  - [article](https://towardsdatascience.com/4-pre-commit-plugins-to-automate-code-reviewing-and-formatting-in-python-c80c6d2e9f5?sk=2388804fb174d667ee5b680be22b8b1f)
-* [DVC](https://dvc.org/): Data version control - [article](https://towardsdatascience.com/introduction-to-dvc-data-version-control-tool-for-machine-learning-projects-7cb49c229fe0)
-* [pdoc](https://github.com/pdoc3/pdoc): Automatically create an API documentation for your project
-
-## Project structure
-```bash
-.
-├── config                      
-│   ├── main.yaml                   # Main configuration file
-│   ├── model                       # Configurations for training model
-│   │   ├── model1.yaml             # First variation of parameters to train model
-│   │   └── model2.yaml             # Second variation of parameters to train model
-│   └── process                     # Configurations for processing data
-│       ├── process1.yaml           # First variation of parameters to process data
-│       └── process2.yaml           # Second variation of parameters to process data
-├── data            
-│   ├── final                       # data after training the model
-│   ├── processed                   # data after processing
-│   ├── raw                         # raw data
-│   └── raw.dvc                     # DVC file of data/raw
-├── docs                            # documentation for your project
-├── dvc.yaml                        # DVC pipeline
-├── .flake8                         # configuration for flake8 - a Python formatter tool
-├── .gitignore                      # ignore files that cannot commit to Git
-├── Makefile                        # store useful commands to set up the environment
-├── models                          # store models
-├── notebooks                       # store notebooks
-├── .pre-commit-config.yaml         # configurations for pre-commit
-├── pyproject.toml                  # dependencies for poetry
-├── README.md                       # describe your project
-├── src                             # store source code
-│   ├── __init__.py                 # make src a Python module 
-│   ├── process.py                  # process data before training model
-│   └── train_model.py              # train model
-└── tests                           # store tests
-    ├── __init__.py                 # make tests a Python module 
-    ├── test_process.py             # test functions for process.py
-    └── test_train_model.py         # test functions for train_model.py
-```
+# ForeML
+A package for training and evaluating time series forecasting using Tensorflow.
 
 ## Set up the environment
 1. Install [Poetry](https://python-poetry.org/docs/#installation)
@@ -51,49 +9,70 @@ make activate
 make setup
 ```
 
+## Install Tensorflow using pip
+```bash
+pip install tensorflow
+```
+
 ## Install new packages
 To install new PyPI packages, run:
 ```bash
 poetry add <package-name>
 ```
 
-## Run the entire pipeline
-To run the entire pipeline, type:
+## Basic usage
+1. You will find the configurations for your runs in the config folder.
+   Change the paths in the main.yaml file to your personal directories that contain your data. For example:
 ```bash
-dvc repo
+raw:
+  path: /home/user/ForeML/data/raw/test_data.csv
 ```
-
-## Version your data
-Read [this article](https://towardsdatascience.com/introduction-to-dvc-data-version-control-tool-for-machine-learning-projects-7cb49c229fe0) on how to use DVC to version your data.
-
-Basically, you start with setting up a remote storage. The remote storage is where your data is stored. You can store your data on DagsHub, Google Drive, Amazon S3, Azure Blob Storage, Google Cloud Storage, Aliyun OSS, SSH, HDFS, and HTTP.
-
+2. Also, the main.yaml file points to the parameters regarding the data processing and model training:
 ```bash
-dvc remote add -d remote <REMOTE-URL>
-```
+defaults:
+  - process: lstm
+  - model: lstm
+  - forecast: lstm
+  - _self_
 
-Commit the config file:
+hypertune: False
+```
+If you change the hypertune parameter to True, it will run a tunable model with predefined parameters.
+
+3. The process YAML file listed in the main.yaml should look like this:
 ```bash
-git commit .dvc/config -m "Configure remote storage"
+delimiter: ','
+target_index: 5
+date_index: 3
+n_steps_in: 12
+n_steps_out: 8
+n_features: 1
 ```
+First, select the delimiter for your .csv file. After, you specify your target and datetime column indexes.
+Finally, you can input the number of timesteps your model will be trained on (n_steps_in) and the timesteps it will forecast (n_steps_out).
+If your model have more than one feature, you can specify it in the last parameter.
 
-Push the data to remote storage:
+4. The model YAML file listed in the main.yaml should look like this:
 ```bash
-dvc push 
+name: lstm
+type: lstm
+n_units: 100
+activation: relu
+dropout: 0.7
+epochs: 10
+batch_size: 500
+validation_split: 0.2
+learning_rate: 0.001
+lossfunction: msle
 ```
+You can change the parameters in this file as you desire. Please note some of those won't cause any effect if you choose to hypertune.
 
-Add and push all changes to Git:
+5. When you have all ready and set, you can just run the files you desire:
 ```bash
-git add .
-git commit -m 'commit-message'
-git push origin <branch>
+python3 /src/process.py
+python3 /src/train_model.py
+python3 /src/forecaster.py
 ```
-
-# Auto-generate API documentation
-
-To auto-generate API document for your project, run:
-
-```bash
-make docs
-```
-# ForeML
+process.py will return the .csv with processed data in the right format and the X and y ready to serve as input to the model
+train_model.py will train the model with your input data and return a trained model as selected (specified architecture and hypertuning option in the config files)
+forecaster.py will take your test data, generate predictions on the dataset and compare with actual values, returning a plot for each timestep
