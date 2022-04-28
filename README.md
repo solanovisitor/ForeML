@@ -9,13 +9,12 @@ make activate
 make setup
 ```
 
-## Install Tensorflow using pip
+## :mechanical_arm: Install Tensorflow using pip
 ```bash
 pip install tensorflow
 ```
 
-## Install new packages
-To install new PyPI packages, run:
+> To install new PyPI packages, run:
 ```bash
 poetry add <package-name>
 ```
