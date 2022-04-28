@@ -91,3 +91,8 @@ target/
 
 # Hydra logs
 outputs
+
+# Data
+data/raw
+data/processed
+data/final
