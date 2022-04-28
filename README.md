@@ -73,6 +73,6 @@ python3 /src/process.py
 python3 /src/train_model.py
 python3 /src/forecaster.py
 ```
-process.py will return the .csv with processed data in the right format and the X and y ready to serve as input to the model
-train_model.py will train the model with your input data and return a trained model as selected (specified architecture and hypertuning option in the config files)
-forecaster.py will take your test data, generate predictions on the dataset and compare with actual values, returning a plot for each timestep
+process.py will return the .csv with processed data in the right format and the X and y ready to serve as input to the model. \n
+train_model.py will train the model with your input data and return a trained model as selected (specified architecture and hypertuning option in the config files). \n
+forecaster.py will take your test data, generate predictions on the dataset and compare with actual values, returning a plot for each timestep.
