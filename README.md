@@ -20,13 +20,13 @@ poetry add <package-name>
 ```
 
 ## :mage: Basic usage
-**:file_folder: You will find the configurations for your runs in the config folder.**
+###### **:file_folder: You will find the configurations for your runs in the config folder.**
    Change the paths in the main.yaml file to your personal directories that contain your data. For example:
 ```bash
 raw:
   path: /home/user/ForeML/data/raw/test_data.csv
 ```
-**:clipboard: The main.yaml file points to the parameters regarding the data processing and model training:**
+###### **:clipboard: The main.yaml file points to the parameters regarding the data processing and model training:**
 ```bash
 defaults:
   - process: lstm
@@ -38,7 +38,7 @@ hypertune: False
 ```
 > If you change the hypertune parameter to True, it will run a tunable model with predefined parameters.
 
-**:scissors: The process YAML file listed in the main.yaml should look like this:**
+###### **:scissors: The process YAML file listed in the main.yaml should look like this:**
 ```bash
 delimiter: ','
 target_index: 5
@@ -51,7 +51,7 @@ n_features: 1
 - Finally, you can input the number of timesteps your model will be trained on (n_steps_in) and the timesteps it will forecast (n_steps_out).
 - If your model have more than one feature, you can specify it in the last parameter.
 
-**:pushpin: The model YAML file listed in the main.yaml should look like this:**
+###### **:pushpin: The model YAML file listed in the main.yaml should look like this:**
 ```bash
 name: lstm
 type: lstm
@@ -66,7 +66,7 @@ lossfunction: msle
 ```
 > You can change the parameters in this file as you desire. Please note some of those won't cause any effect if you choose to hypertune.
 
-**:running_man: When you have all ready and set, you can just run the files you desire:**
+###### **:running_man: When you have all ready and set, you can just run the files you desire:**
 ```bash
 python3 /src/process.py
 python3 /src/train_model.py
